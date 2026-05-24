@@ -25,11 +25,31 @@ export const metadata: Metadata = {
   description:
     "Applied AI Engineer building production legal-AI systems — RAG pipelines, evaluation frameworks, and agents in regulated, high-stakes domains. LLB (First Class) + MSc Financial Engineering.",
   authors: [{ name: site.fullName }],
+  alternates: { canonical: "/" },
   openGraph: {
     title: `${site.name} — ${site.role}`,
     description:
       "Production legal-AI: RAG, agents, pipelines. LLB + MSc Financial Engineering.",
     type: "website",
+    url: "/",
+    siteName: site.name,
+    // Clean, query-string-free URL (served from /public) for picky scrapers like LinkedIn.
+    images: [
+      {
+        url: "/og.png",
+        width: 1200,
+        height: 630,
+        type: "image/png",
+        alt: "Bukunmi Akinyemi — Applied AI Engineer. Production legal-AI, RAG, agents, pipelines.",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `${site.name} — ${site.role}`,
+    description:
+      "Production legal-AI: RAG, agents, pipelines. LLB + MSc Financial Engineering.",
+    images: ["/og.png"],
   },
 };
 

@@ -22,16 +22,20 @@ export async function generateMetadata({
   const { slug } = await params;
   const post = getPostBySlug(slug);
   if (!post) return {};
+  const path = `/writing/${slug}`;
   return {
     title: post.title,
     description: post.summary,
+    alternates: { canonical: path },
     openGraph: {
       title: post.title,
       description: post.summary,
       type: "article",
+      // Override the inherited homepage URL with this post's canonical URL.
+      url: path,
       // Explicit so OG inherits the site card (Next drops the file image when a
       // deeper route sets its own openGraph object).
-      images: ["/opengraph-image.png"],
+      images: ["/og.png"],
     },
   };
 }
