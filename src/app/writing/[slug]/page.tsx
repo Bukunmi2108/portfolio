@@ -25,7 +25,14 @@ export async function generateMetadata({
   return {
     title: post.title,
     description: post.summary,
-    openGraph: { title: post.title, description: post.summary, type: "article" },
+    openGraph: {
+      title: post.title,
+      description: post.summary,
+      type: "article",
+      // Explicit so OG inherits the site card (Next drops the file image when a
+      // deeper route sets its own openGraph object).
+      images: ["/opengraph-image.png"],
+    },
   };
 }
 
