@@ -164,11 +164,11 @@ export const experience: Experience[] = [
     role: "Software Engineer (Legal AI)",
     location: "Dubai-based · Remote",
     start: "Oct 2025",
-    end: "Present",
+    end: "Jun 2026",
     bullets: [
       "Contributed to DocETL pipeline orchestration (Split → ParallelMap → CodeMap → Reduce), including quote-validation and paraphrase-correction operators.",
       "Multilingual legal-AI: English + Arabic evaluation splits, jurisdiction-aware judge prompts. Ran pipeline evaluations and prompt optimizations.",
-      "Worked on QCounsel — a Pydantic AI agent with 26 tools; scoped the evaluation framework, tool-routing classifier, and clarify-vs-act improvements.",
+      "Worked on QCounsel - a Pydantic AI agent with 26 tools; scoped the evaluation framework, tool-routing classifier, and clarify-vs-act improvements.",
       "Production AI ops: feedback-triaged bug fixes from Langfuse trace IDs; span-level latency debugging; PostHog vs DB telemetry reconciliation for apply-rate analysis.",
     ],
     stack:
