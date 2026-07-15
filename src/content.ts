@@ -120,7 +120,7 @@ export const projects: Project[] = [
     problem:
       "LLMs fabricate and misattribute legal citations when answering without tools — a real liability risk for legal AI.",
     approach:
-      "An async LLM-as-judge evaluation pipeline that scores citation accuracy across 328 EN/AR legal prompts and 6 GPT model variants with a 4-category hallucination rubric (correct, correct refusal, misattribution, fabrication).",
+      "An async LLM-as-judge evaluation pipeline that scores citation accuracy across 328 EN/AR legal prompts and 6 frontier models with a 4-category hallucination rubric (correct, correct refusal, misattribution, fabrication).",
     detail:
       "Pluggable provider architecture (OpenAI / Azure / Anthropic / Google), Pydantic schemas, and resumable checkpointing across both the response-collection and judging phases.",
     stack: ["Python", "asyncio", "Pydantic", "OpenAI / Azure", "pandas"],
@@ -166,9 +166,9 @@ export const experience: Experience[] = [
     start: "Oct 2025",
     end: "Jun 2026",
     bullets: [
-      "Contributed to DocETL pipeline orchestration.",
-      "Multilingual legal-AI: English + Arabic evaluation splits, jurisdiction-aware judge prompts. Ran pipeline evaluations and prompt optimizations.",
-      "Worked on QCounsel - a Pydantic AI agent with 26 tools; scoped the evaluation framework, tool-routing classifier, and clarify-vs-act improvements.",
+      "Integrated DocETL pipeline orchestration (Split → ParallelMap → CodeMap → Reduce).",
+      "Shipped multilingual legal-AI evaluation: English and Arabic evaluation splits, jurisdiction-aware judge prompts, pipeline evaluations, and prompt optimization.",
+      "Built QCounsel, a 26-tool Pydantic AI agent running inside Microsoft Word for legal research, drafting, and litigation workflows; designed its evaluation framework, tool-routing classifier, and clarify-vs-act logic.",
       "Production AI ops: feedback-triaged bug fixes from Langfuse trace IDs; span-level latency debugging; PostHog vs DB telemetry reconciliation for apply-rate analysis.",
     ],
     stack:
@@ -205,7 +205,7 @@ export const experience: Experience[] = [
     end: "2024",
     bullets: [
       "Built and maintained digital examination and e-learning platforms (99.9% uptime); implemented JWT authentication and role-based access control.",
-      "Ongoing side delivery on the school-management platform (Python + React + Docker; 1,400+ books, 3,000+ videos; 35+ PRs).",
+      "Delivered a school management platform (Python + React + Docker; 1,400+ books, 3,000+ videos; 35+ PRs).",
       "Taught practical programming and ICT.",
     ],
   },
@@ -220,18 +220,18 @@ export type Education = {
 
 export const education: Education[] = [
   {
-    school: "WorldQuant University",
-    degree: "MSc, Financial Engineering",
-    period: "In progress (2025–)",
-    detail:
-      "Coursework: Financial Econometrics — cointegration, ECM/VECM, LASSO, Diebold–Mariano testing.",
-  },
-  {
     school: "ESCAE Benin University, Cotonou",
     degree: "LLB Law, First Class Honours",
     period: "Sep 2018 – Aug 2022",
     detail:
       "GPA 4.92/5.0 (top 1% of cohort). Best Graduating Student, Faculty of Law. Student Senate President (Leadership Award).",
+  },
+  {
+    school: "WorldQuant University",
+    degree: "MSc, Financial Engineering",
+    period: "In progress (2025–)",
+    detail:
+      "Coursework: Financial Econometrics — cointegration, ECM/VECM, LASSO, Diebold–Mariano testing.",
   },
 ];
 
@@ -240,9 +240,7 @@ export const certifications: string[] = [
   "Fundamentals of LLMs — DeepLearning.AI",
   "Advanced Learning Algorithms — Coursera ML Specialization",
   "Unsupervised Learning, Recommenders, Reinforcement Learning — Coursera ML Specialization",
-  "Oracle Cloud Infrastructure 2025 Certified AI Foundations Associate",
+  "Oracle Cloud Infrastructure 2025 Certified AI Foundations Associate — Sep 2025",
   "Applied Data Science Lab — WorldQuant University",
-  "Clio Certified Administrator (Legal Practice Management)",
-  "Introduction to Cybersecurity — Cisco Networking Academy",
-  "McKinsey Forward Program (Leadership & Strategy)",
+  "Clio Certified Administrator (Legal Practice Management) — Sep 2025",
 ];
