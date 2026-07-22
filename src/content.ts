@@ -168,7 +168,7 @@ export const experience: Experience[] = [
     bullets: [
       "Integrated DocETL pipeline orchestration (Split → ParallelMap → CodeMap → Reduce).",
       "Shipped multilingual legal-AI evaluation: English and Arabic evaluation splits, jurisdiction-aware judge prompts, pipeline evaluations, and prompt optimization.",
-      "Built QCounsel, a 26-tool Pydantic AI agent running inside Microsoft Word for legal research, drafting, and litigation workflows; designed its evaluation framework, tool-routing classifier, and clarify-vs-act logic.",
+      "Built QCounsel, a Pydantic AI agent running inside Microsoft Word for legal research, drafting, and litigation workflows; designed its evaluation framework, tool-routing classifier, and clarify-vs-act logic.",
       "Production AI ops: feedback-triaged bug fixes from Langfuse trace IDs; span-level latency debugging; PostHog vs DB telemetry reconciliation for apply-rate analysis.",
     ],
     stack:
