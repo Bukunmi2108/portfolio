@@ -5,10 +5,11 @@ import {
   renderCertList,
   renderEducationItem,
   renderExperienceItem,
+  renderOpenToWork,
   renderProjectCard,
   renderSiteLinks,
 } from "./render";
-import type { Project } from "./content";
+import type { OpenToWork, Project } from "./content";
 
 const sampleProject: Project = {
   title: "Sample",
@@ -19,6 +20,66 @@ const sampleProject: Project = {
   links: [{ label: "GitHub", href: "https://example.com/repo" }],
   featured: true,
 };
+
+const sampleOtw: OpenToWork = {
+  enabled: true,
+  teaser: "psst — open to work",
+  label: "Open to work",
+  availability: "Available now · remote",
+  roles: ["AI Engineer", "LLM Engineer"],
+  pitch: "Available for engineering roles.",
+  cta: { label: "Get in touch", href: "mailto:hi@example.com", primary: true },
+};
+
+describe("renderOpenToWork", () => {
+  it("renders the collapsed teaser, roles, pitch, and CTA when enabled", () => {
+    const chip = renderOpenToWork(sampleOtw);
+    expect(chip).not.toBeNull();
+    expect(chip?.querySelector(".otw-teaser")?.textContent).toBe("psst — open to work");
+    expect(chip?.querySelector(".otw-dot")).not.toBeNull();
+    expect(chip?.querySelector(".otw-heading")?.textContent).toBe("Open to work");
+    expect(chip?.querySelector(".otw-availability")?.textContent).toBe("Available now · remote");
+    expect([...(chip?.querySelectorAll(".otw-roles li") ?? [])].map((li) => li.textContent)).toEqual(
+      ["AI Engineer", "LLM Engineer"],
+    );
+    expect(chip?.querySelector(".otw-pitch")?.textContent).toBe("Available for engineering roles.");
+    const cta = chip?.querySelector<HTMLAnchorElement>(".otw-panel a");
+    expect(cta?.getAttribute("href")).toBe("mailto:hi@example.com");
+    expect(cta?.className).toBe("button-link");
+  });
+
+  it("toggles the is-open class and aria-expanded when the trigger is clicked", () => {
+    const chip = renderOpenToWork(sampleOtw);
+    const trigger = chip?.querySelector<HTMLButtonElement>(".otw-trigger");
+    expect(trigger?.getAttribute("aria-expanded")).toBe("false");
+    trigger?.click();
+    expect(chip?.classList.contains("is-open")).toBe(true);
+    expect(trigger?.getAttribute("aria-expanded")).toBe("true");
+    trigger?.click();
+    expect(chip?.classList.contains("is-open")).toBe(false);
+    expect(trigger?.getAttribute("aria-expanded")).toBe("false");
+  });
+
+  it("returns null when disabled", () => {
+    expect(renderOpenToWork({ ...sampleOtw, enabled: false })).toBeNull();
+  });
+
+  it("returns null once the until date has passed", () => {
+    const chip = renderOpenToWork(
+      { ...sampleOtw, until: "2026-01-01" },
+      new Date("2026-06-01T00:00:00"),
+    );
+    expect(chip).toBeNull();
+  });
+
+  it("still renders while the until date is in the future", () => {
+    const chip = renderOpenToWork(
+      { ...sampleOtw, until: "2026-12-31" },
+      new Date("2026-06-01T00:00:00"),
+    );
+    expect(chip).not.toBeNull();
+  });
+});
 
 describe("renderProjectCard", () => {
   it("renders title, copy, stack chips, and links", () => {

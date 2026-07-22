@@ -27,6 +27,41 @@ export const heroLinks: SiteLink[] = [
   { label: "Resume", href: site.resumePath },
 ];
 
+export type OpenToWork = {
+  /** Master switch. */
+  enabled: boolean;
+  /** Optional ISO date (YYYY-MM-DD); past it the chip auto-hides even if enabled. */
+  until?: string;
+  /** Inviting micro-copy shown next to the pulse while collapsed. */
+  teaser: string;
+  /** Headline inside the expanded panel. */
+  label: string;
+  /** Availability line, e.g. "Available immediately · remote or Dubai". */
+  availability: string;
+  /** Roles the visitor should know you're open to. */
+  roles: string[];
+  /** One-line pitch revealed on expand. */
+  pitch: string;
+  /** Call-to-action shown in the expanded panel. */
+  cta: SiteLink;
+};
+
+export const openToWork: OpenToWork = {
+  enabled: true,
+  until: "2026-09-30",
+  teaser: "status: open · expand",
+  label: "Open to work",
+  availability: "Available Jul 2026 · remote-first (Dubai / UK friendly)",
+  roles: [
+    "AI / ML Engineer",
+    "LLM & Agent Engineer",
+    "Legal Engineer",
+    "Full-stack (AI products)",
+  ],
+  pitch: "AI engineer (LLB) — production legal AI, eval pipelines, models from scratch.",
+  cta: { label: "Get in touch", href: `mailto:${site.email}`, primary: true },
+};
+
 export const contactLinks: SiteLink[] = [
   { label: site.email, href: `mailto:${site.email}`, primary: true },
   { label: "GitHub", href: site.social.github },

@@ -653,6 +653,199 @@ a {
   }
 }
 
+/* ---------- open-to-work chip ---------- */
+
+.otw-chip {
+  position: fixed;
+  right: clamp(0.9rem, 3vw, 1.6rem);
+  bottom: clamp(0.9rem, 3vw, 1.6rem);
+  z-index: 50;
+  /* Fixed open width so panel content never reflows as it animates. */
+  --otw-w: min(18rem, calc(100vw - 2.2rem));
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  background: var(--card);
+  box-shadow: 3px 3px 0 var(--shadow);
+  font-family: var(--font-mono);
+  animation: otw-enter 520ms var(--ease) both;
+  transition:
+    border-radius 260ms var(--ease),
+    box-shadow 200ms var(--ease),
+    transform 200ms var(--ease);
+}
+
+/* Collapsed trigger: pulse + teaser, the whole thing is one tappable button. */
+.otw-trigger {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin: 0;
+  padding: 0.5rem 0.95rem;
+  border: 0;
+  border-radius: inherit;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.78rem;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+}
+
+.otw-teaser {
+  white-space: nowrap;
+  color: var(--ink-muted);
+}
+
+/* Chevron hints the pill expands; it flips when open. */
+.otw-caret {
+  margin-left: 0.1rem;
+  color: var(--ink-faint);
+  transition: transform 260ms var(--ease);
+}
+
+.otw-chip:hover .otw-caret,
+.otw-chip:focus-within .otw-caret,
+.otw-chip.is-open .otw-caret {
+  transform: rotate(180deg);
+}
+
+.otw-dot {
+  position: relative;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+  flex: none;
+}
+
+/* Breathing pulse ring around the status dot. */
+.otw-dot::after {
+  content: "";
+  position: absolute;
+  inset: -3px;
+  border-radius: 50%;
+  border: 1px solid var(--accent);
+  animation: otw-pulse 2s var(--ease) infinite;
+}
+
+/* Expanded state: squared corners + lifted shadow, driven by hover, keyboard
+ * focus, or the .is-open class the trigger toggles on click/tap. */
+.otw-chip:hover,
+.otw-chip:focus-within,
+.otw-chip.is-open {
+  border-radius: var(--radius);
+  transform: translate(-1px, -1px);
+  box-shadow: 5px 5px 0 var(--shadow);
+}
+
+/* Panel is a single-row grid animating 0fr → 1fr; the inner wrapper is that row.
+ * Width collapses to 0 at rest too, so the resting pill hugs the teaser instead
+ * of staying as wide as the hidden content. */
+.otw-panel {
+  display: grid;
+  grid-template-rows: 0fr;
+  width: 0;
+  overflow: hidden;
+  transition:
+    grid-template-rows 340ms var(--ease),
+    width 300ms var(--ease);
+}
+
+.otw-panel-inner {
+  width: var(--otw-w);
+  min-height: 0;
+  overflow: hidden;
+  padding: 0 0.95rem;
+  opacity: 0;
+  transition:
+    opacity 200ms var(--ease),
+    padding 300ms var(--ease);
+}
+
+.otw-chip:hover .otw-panel,
+.otw-chip:focus-within .otw-panel,
+.otw-chip.is-open .otw-panel {
+  grid-template-rows: 1fr;
+  width: var(--otw-w);
+}
+
+.otw-chip:hover .otw-panel-inner,
+.otw-chip:focus-within .otw-panel-inner,
+.otw-chip.is-open .otw-panel-inner {
+  opacity: 1;
+  padding: 0.15rem 0.95rem 0.9rem;
+}
+
+.otw-heading {
+  margin: 0 0 0.15rem;
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.otw-availability {
+  margin: 0 0 0.6rem;
+  font-size: 0.68rem;
+  letter-spacing: 0.02em;
+  color: var(--accent);
+}
+
+.otw-roles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin: 0 0 0.7rem;
+  padding: 0;
+  list-style: none;
+}
+
+.otw-roles li {
+  padding: 0.16rem 0.5rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--accent-soft);
+  font-size: 0.66rem;
+  letter-spacing: 0.02em;
+  color: var(--ink-muted);
+}
+
+.otw-pitch {
+  margin: 0 0 0.7rem;
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+  line-height: 1.45;
+  color: var(--ink-muted);
+}
+
+@keyframes otw-enter {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes otw-pulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.7;
+  }
+  70% {
+    transform: scale(2.4);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(2.4);
+    opacity: 0;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;

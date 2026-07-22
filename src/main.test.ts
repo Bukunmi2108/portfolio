@@ -6,7 +6,16 @@
 
 import { readFileSync } from "node:fs";
 import { expect, it } from "vitest";
-import { certifications, contactLinks, education, experience, heroLinks, projects } from "./content";
+import {
+  certifications,
+  contactLinks,
+  education,
+  experience,
+  heroLinks,
+  openToWork,
+  projects,
+} from "./content";
+import { renderOpenToWork } from "./render";
 
 it("main.ts mounts all content into the real index.html", async () => {
   const html = readFileSync("index.html", "utf8");
@@ -25,4 +34,7 @@ it("main.ts mounts all content into the real index.html", async () => {
   expect(document.querySelectorAll("#cert-list li")).toHaveLength(certifications.length);
   expect(document.querySelectorAll("#contact-links a")).toHaveLength(contactLinks.length);
   expect(document.getElementById("year")?.textContent).toBe(String(new Date().getFullYear()));
+  // The open-to-work chip mounts to <body>, outside #main — gated on the config.
+  const expectedChips = renderOpenToWork(openToWork) ? 1 : 0;
+  expect(document.querySelectorAll("body > .otw-chip")).toHaveLength(expectedChips);
 });

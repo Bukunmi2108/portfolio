@@ -6,6 +6,7 @@ import {
   education,
   experience,
   heroLinks,
+  openToWork,
   projects,
 } from "./content";
 import {
@@ -13,6 +14,7 @@ import {
   renderCertList,
   renderEducationItem,
   renderExperienceItem,
+  renderOpenToWork,
   renderProjectCard,
   renderSiteLinks,
 } from "./render";
@@ -30,6 +32,10 @@ mount("experience-list", experience.map(renderExperienceItem));
 mount("education-list", education.map(renderEducationItem));
 mount("cert-list", renderCertList(certifications));
 mount("contact-links", renderSiteLinks(contactLinks));
+
+// Fixed-position chip lives outside #main; only appended when the flag is live.
+const otwChip = renderOpenToWork(openToWork);
+if (otwChip) document.body.append(otwChip);
 
 const year = document.getElementById("year");
 if (year) year.textContent = String(new Date().getFullYear());

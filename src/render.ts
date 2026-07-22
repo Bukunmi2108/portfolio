@@ -4,7 +4,7 @@
  * directly testable under happy-dom and mounted by main.ts.
  */
 
-import type { Education, Experience, Project, SiteLink } from "./content";
+import type { Education, Experience, OpenToWork, Project, SiteLink } from "./content";
 
 function el<K extends keyof HTMLElementTagNameMap>(
   tag: K,
@@ -33,6 +33,65 @@ export function renderSiteLinks(links: readonly SiteLink[]): DocumentFragment {
     frag.append(a);
   }
   return frag;
+}
+
+/**
+ * Floating "open to work" chip. Returns null when the flag is off or the
+ * optional `until` date has passed, so main.ts can gate the mount.
+ */
+export function renderOpenToWork(data: OpenToWork, now: Date = new Date()): HTMLElement | null {
+  if (!data.enabled) return null;
+  if (data.until && now >= new Date(`${data.until}T23:59:59`)) return null;
+
+  const chip = el("aside", "otw-chip");
+  chip.setAttribute("aria-label", "Availability");
+
+  // Collapsed trigger: a pulse dot + inviting teaser. Toggling on click makes
+  // the panel reachable without a pointer (touch, keyboard) as well as on hover.
+  const trigger = el("button", "otw-trigger");
+  trigger.type = "button";
+  trigger.setAttribute("aria-expanded", "false");
+  trigger.append(el("span", "otw-dot"));
+  trigger.append(el("span", "otw-teaser", data.teaser));
+  const caret = el("span", "otw-caret", "▾");
+  caret.setAttribute("aria-hidden", "true");
+  trigger.append(caret);
+
+  const panel = el("div", "otw-panel");
+  const panelId = "otw-panel";
+  panel.id = panelId;
+  trigger.setAttribute("aria-controls", panelId);
+  trigger.addEventListener("click", () => {
+    const open = chip.classList.toggle("is-open");
+    trigger.setAttribute("aria-expanded", String(open));
+  });
+
+  // A single inner wrapper is what actually collapses: the panel is a 1-row grid
+  // animating 0fr → 1fr, and this child (overflow-hidden) is the one row.
+  const inner = el("div", "otw-panel-inner");
+  inner.append(el("p", "otw-heading", data.label));
+  inner.append(el("p", "otw-availability", data.availability));
+
+  const roles = el("ul", "otw-roles");
+  roles.setAttribute("aria-label", "Roles open to");
+  for (const role of data.roles) roles.append(el("li", "", role));
+  inner.append(roles);
+
+  inner.append(el("p", "otw-pitch", data.pitch));
+
+  const cta = el("a", data.cta.primary ? "button-link" : undefined, data.cta.label);
+  cta.href = data.cta.href;
+  if (data.cta.href.startsWith("http")) {
+    cta.target = "_blank";
+    cta.rel = "noopener noreferrer";
+  }
+  inner.append(cta);
+  panel.append(inner);
+
+  chip.append(trigger);
+  chip.append(panel);
+
+  return chip;
 }
 
 export function renderAbout(paragraphs: readonly string[]): DocumentFragment {
