@@ -70,8 +70,11 @@ def make_og() -> Image.Image:
     d = ImageDraw.Draw(img)
     x0 = 150
 
+    # The site kicker ("Agents · Distributed Systems · Applied ML") runs 1170px
+    # here, past the 1050px canvas limit, so identity stays in the kicker and the
+    # specifics move to the body lines below.
     kicker_font = ImageFont.truetype(PLEX, 25)
-    draw_tracked(d, (x0, 132), "BUKUNMI AKINYEMI · SOFTWARE", kicker_font, ACCENT, tracking=0.18)
+    draw_tracked(d, (x0, 132), "BUKUNMI AKINYEMI · AI ENGINEER", kicker_font, ACCENT, tracking=0.18)
 
     headline_font = ImageFont.truetype(FRAUNCES, 118)
     headline = "I model systems"
@@ -80,8 +83,8 @@ def make_og() -> Image.Image:
     d.text((x0 - 4 + w, 196), ".", font=headline_font, fill=ACCENT)
 
     body_font = ImageFont.truetype(INSTRUMENT, 35)
-    d.text((x0, 392), "I map patterns and deviations in complex systems", font=body_font, fill=INK_MUTED)
-    d.text((x0, 442), "and turn them into tools with measurable value.", font=body_font, fill=INK_MUTED)
+    d.text((x0, 392), "Agents, distributed systems, applied ML.", font=body_font, fill=INK_MUTED)
+    d.text((x0, 442), "Seven systems shipped in six months.", font=body_font, fill=INK_MUTED)
 
     foot_font = ImageFont.truetype(PLEX, 22)
     draw_tracked(d, (x0, 540), "BUKUNMI-PORTFOLIO.VERCEL.APP", foot_font, INK_FAINT, tracking=0.12)
