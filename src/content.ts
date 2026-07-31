@@ -6,6 +6,11 @@
  * Copy convention: no em dashes in prose; use spaced hyphens ( - ). Date
  * ranges use en dashes, matching the resume.
  *
+ * Projects are two-layer. `summary` + `proof` are the skim surface rendered on
+ * the card; `problem` / `approach` / `detail` are the argument, revealed in the
+ * dialog at #work/<slug>. Keep the card layer factual and the dialog layer
+ * prose, so a skimmer reads evidence and never has to read voice.
+ *
  * Disclosure rules are binding. Qanooni work is confidential and described in
  * the abstract only, with no repository names and no unapproved metrics.
  * CaseSimpli, the school platform, tailor, and workspace-infra are private
@@ -59,7 +64,7 @@ export const openToWork: OpenToWork = {
   until: "2026-09-30",
   teaser: "status: open · expand",
   label: "Open to work",
-  availability: "Available now · remote-first (Dubai / UK friendly)",
+  availability: "Available now · remote-first",
   roles: [
     "AI / ML Engineer",
     "LLM & Agent Engineer",
@@ -78,16 +83,22 @@ export const contactLinks: SiteLink[] = [
 
 /** Method → demonstrated range → human line. No titles, no labels. */
 export const about: string[] = [
-  "I build systems that hold up under load and tell you when they don't - event-driven backends, tool-using agents, and models trained from scratch. Seven shipped in the last six months, most of them deployed, all of them tested.",
-  "The same loop runs through all of it: model the system, measure it honestly, ship it, leave the internals visible. Tideo names its failure modes in its test suite - dead-letter queues, deduplication, backpressure, retry-after. Capit shows you where it looked and which beam candidates it rejected. The production agents came with their evaluation frameworks attached.",
-  "Twenty months of that has been paid AI engineering in legal technology - a domain where every citation is checkable and a hallucination is a liability. That constraint is the transferable part: it applies anywhere correctness is auditable, which is most of fintech, healthcare, and compliance. The First Class law degree sits behind the domain depth rather than in front of the engineering.",
+  "I build systems that hold up under load and tell you when they don’t - event-driven backends, tool-using agents, and models trained from scratch. Seven shipped in the last six months, most deployed, all tested.",
+  "The same loop runs through all of it: model the system, measure it honestly, ship it, leave the internals visible. Tideo names its failure modes in its test suite. Capit shows you where it looked and which beam candidates it rejected. The production agents came with their evaluation frameworks attached.",
+  "Twenty months of that has been paid AI engineering in legal technology, a domain where every citation is checkable and a hallucination is a liability. That constraint is the transferable part: it applies anywhere correctness is auditable, which covers most of fintech, healthcare, and compliance. The First Class law degree sits behind the domain depth, not in front of the engineering.",
   "When not modeling: reading, pencil art, piano.",
 ];
 
 export type ProjectLink = { label: string; href: string };
 
 export type Project = {
+  /** URL fragment id: the dialog opens at #work/<slug>. */
+  slug: string;
   title: string;
+  /** One line on the card: what this is. */
+  summary: string;
+  /** Scannable hard facts shown as chips on the card. */
+  proof: string[];
   problem: string;
   approach: string;
   detail: string;
@@ -100,14 +111,18 @@ export type Project = {
 
 export const projects: Project[] = [
   {
-    title: "tideo - distributed video transcoding pipeline",
+    slug: "tideo",
+    title: "tideo",
     featured: true,
+    summary:
+      "One upload becomes a full HLS ladder, encoded in parallel across a distributed pipeline.",
+    proof: ["48 test modules", "Kafka · RabbitMQ · Redis · PostgreSQL", "Deployed"],
     problem:
-      "Turning one upload into an adaptive-quality stream is easy to demo and hard to make survive failure. Workers die mid-encode, the same file arrives twice, and a naive retry storm takes down the thing it was meant to protect.",
+      "A video upload has to become every resolution a viewer might need, encoded in parallel, without redoing work already done. Meanwhile workers die mid-encode and the same file gets uploaded twice.",
     approach:
-      "Two brokers, split on purpose. Kafka carries facts - append-only, partitioned by job_id, replayed safely by independent consumer groups. RabbitMQ carries commands - acked, deleted, competing consumers. A single dispatcher is the only bridge between them, guarding duplicates with an idempotent SET NX. Redis holds hot state and streams progress over pub/sub; PostgreSQL is the cold store and event audit log.",
+      "Two brokers with separate jobs. Kafka carries facts: append-only, partitioned by job_id, replayable by independent consumer groups. RabbitMQ carries commands: acked, deleted, competing consumers. A single dispatcher bridges them and guards duplicates with an idempotent SET NX. Redis holds hot state and streams progress over pub/sub; PostgreSQL keeps terminal state and the event audit log.",
     detail:
-      "The split is load-bearing: stop RabbitMQ and the API still accepts jobs, and replaying the audit log never re-runs a transcode. 48 test modules name the failure modes directly - dead-letter queues, deduplication, backpressure, retry-after, rate limiting, event envelopes - alongside a classified FFmpeg-stderr corpus and chaos drills. Renditions encode in parallel on Celery workers and fan back into one HLS package with poster frames, a scrubbable storyboard, and optional faster-whisper captions. The live backend runs on an ephemeral HF Space, so shared output links are temporary by design.",
+      "The separation is load-bearing. Stop RabbitMQ and the API still accepts jobs; replay the audit log and nothing re-transcodes. The test suite names its failure modes directly: dead-letter queues, deduplication, backpressure, retry-after, rate limiting, event envelopes, plus a classified FFmpeg-stderr corpus and chaos drills. Output is a single HLS package with poster frames, a scrubbable storyboard, and optional faster-whisper captions. The live backend sits on an ephemeral HF Space, so shared output links expire.",
     stack: [
       "Python",
       "FastAPI",
@@ -121,18 +136,22 @@ export const projects: Project[] = [
     ],
     links: [
       { label: "Live demo", href: "https://tideo.vercel.app" },
+      { label: "API & docs", href: "https://bukunmi2108-tideo.hf.space/docs" },
       { label: "GitHub", href: "https://github.com/Bukunmi2108/tideo" },
     ],
   },
   {
-    title: "aristotle - source-aware research assistant",
+    slug: "aristotle",
+    title: "aristotle",
     featured: true,
+    summary: "A research assistant that cites its sources and runs generated code in a sandbox.",
+    proof: ["4 deployable services", "16 test modules", "3 deploy pipelines"],
     problem:
-      "An assistant that answers from the open web is only useful if you can see where each claim came from, and only safe if the code it runs can't reach anything that matters.",
+      "Two requirements pull against each other: an assistant should answer from live sources you can check, and it should be able to execute code without that code reaching anything important.",
     approach:
-      "Four independently deployable services - agent API, model gateway, search, and an isolated Python sandbox - behind a client that streams reasoning, tool activity, sources, and answer text over WebSockets. A tool-using Pydantic AI agent routes between web search, uploaded-document tools, and sandboxed execution, with a hosted primary model and a llama.cpp-compatible fallback.",
+      "Four services deploy independently: agent API, model gateway, search, and an isolated Python sandbox. A tool-using Pydantic AI agent routes between web search, uploaded-document tools, and sandboxed execution, streaming reasoning, tool activity, sources, and answer text over WebSockets. A hosted primary model falls back to a llama.cpp-compatible service.",
     detail:
-      "Each service carries its own Dockerfile and README, deployed by three separate GitHub Actions workflows. 16 test modules cover cancellation mid-run, sandbox client behavior, workspace capabilities, research evals, and a deploy contract. Reads text, Markdown, JSON, CSV, HTML, PDF, and DOCX; runs Python and returns downloadable charts. Under active development - current defaults favor experimentation over hardened access control.",
+      "Each service carries its own Dockerfile, README, and GitHub Actions workflow. Tests cover cancellation mid-run, sandbox client behavior, workspace capabilities, research evals, and a deploy contract. Reads text, Markdown, JSON, CSV, HTML, PDF, and DOCX; runs Python and returns downloadable charts. Still in active development, with defaults tuned for experimentation over hardened access control.",
     stack: [
       "Python",
       "FastAPI",
@@ -149,13 +168,16 @@ export const projects: Project[] = [
     ],
   },
   {
-    title: "capit - a glass-box image captioner",
+    slug: "capit",
+    title: "capit",
+    summary: "Show, Attend and Tell trained from scratch, with the attention made visible.",
+    proof: ["BLEU-4 23.63 / CIDEr 62.80", "21 test modules", "Trained on one T4"],
     problem:
-      "Most captioners hand you a sentence and nothing else. If a model can't show its work, you can't trust - or learn from - it.",
+      "Most captioners hand you a sentence and nothing else. If a model can’t show its work, you can’t trust it or learn from it.",
     approach:
-      "A Show, Attend and Tell reimplementation - frozen ResNet-50 encoder, Bahdanau attention + LSTM decoder trained from scratch on Flickr8k - whose UI exposes every internal: word-by-word attention heatmaps and the beam-search candidates it rejected, with BLIP running beside it as a deliberate closed-box foil.",
+      "A frozen ResNet-50 encoder, Bahdanau attention, and an LSTM decoder trained on Flickr8k. The interface exposes word-by-word attention heatmaps and the beam candidates the decoder rejected, with BLIP running alongside as a closed-box contrast.",
     detail:
-      "BLEU-4 23.63 / CIDEr 62.80 (beam 5, Karpathy test split). Attention is genuinely concentrated: the top 5 of 196 cells hold ~32% of the mass. 21 test modules over the training pipeline, including a single-batch overfit gate that fails the build if the model can't memorize one batch. Trained on a single Colab T4; served from a self-contained model artifact on an HF Space.",
+      "BLEU-4 23.63 / CIDEr 62.80 at beam 5 on the Karpathy split. Attention concentrates: the top 5 of 196 cells carry about 32% of the mass. The suite includes a single-batch overfit gate that fails the build when the model cannot memorize one batch. Trained on a single Colab T4 and served from a self-contained artifact on an HF Space.",
     stack: ["PyTorch", "ResNet-50", "Bahdanau attention", "beam search", "FastAPI", "Vite + TS"],
     links: [
       { label: "Live demo", href: "https://capit-one.vercel.app" },
@@ -164,13 +186,16 @@ export const projects: Project[] = [
     ],
   },
   {
-    title: "givemore - a MovieLens recommender",
+    slug: "givemore",
+    title: "givemore",
+    summary: "A MovieLens recommender whose entire model ships as a 9 MB SQLite file.",
+    proof: ["9 MB model artifact", "Zero ML deps at serve time", "Deployed"],
     problem:
-      "Recommender demos usually hide a heavyweight serving stack - or quietly call someone else's API.",
+      "Recommender demos usually hide a heavyweight serving stack, or quietly call someone else’s API.",
     approach:
-      "Item-item collaborative filtering (adjusted cosine, IUF-weighted, ≥5 co-rating threshold) blended with TF-IDF content similarity and a Bayesian-weighted popularity fallback - all precomputed offline, so the API never trains anything.",
+      "Item-item collaborative filtering (adjusted cosine, IUF-weighted, ≥5 co-rating threshold) blended with TF-IDF content similarity and a Bayesian-weighted popularity fallback. Everything is precomputed offline, so the API never trains anything.",
     detail:
-      "The whole model ships as a 9 MB SQLite artifact behind a read-only FastAPI with zero ML dependencies; the frontend is framework-free Vite + TypeScript. A small service by design, with a correspondingly small test suite, and honest in the UI about what it can't do.",
+      "The model ships as a 9 MB SQLite artifact behind a read-only FastAPI with no ML dependencies; the frontend is framework-free Vite and TypeScript. A small service with a correspondingly small test suite, and a UI that states plainly what it cannot do.",
     stack: ["Python", "pandas", "scikit-learn", "SQLite", "FastAPI", "Vite + TS"],
     links: [
       { label: "Live demo", href: "https://givemore-one.vercel.app" },
@@ -178,14 +203,18 @@ export const projects: Project[] = [
     ],
   },
   {
+    slug: "school-platform",
     title: "School management platform",
     privateWork: true,
+    summary:
+      "Examinations, e-learning, library, payments, and admissions for a school that owns its stack.",
+    proof: ["~900 files", "99.9% uptime", "Web + mobile clients"],
     problem:
-      "A school running on disconnected third-party tools for examinations, learning materials, fees, and admissions - none of which talked to each other, and none of which it owned.",
+      "A school was running examinations, learning materials, fees, and admissions across four systems that did not talk to each other, none of which it owned.",
     approach:
       "One platform covering digital examinations, e-learning, a digital library, messaging, payments, admissions, and role-gated administration, with web and mobile clients over a Python API.",
     detail:
-      "Around 900 files across TypeScript and Python, with separate CI for the API and web app. JWT authentication and role-based access control spanning student, parent, teacher, and administrator roles; 1,400+ books and 3,000+ videos served at 99.9% uptime. First built alongside my ICT role at the school, then rebuilt end to end across 2025-2026. Live and in daily use; source is private.",
+      "Around 900 files of TypeScript and Python, with separate CI for the API and the web app. JWT authentication and role-based access control spanning student, parent, teacher, and administrator roles; 1,400+ books and 3,000+ videos served at 99.9% uptime. First built alongside my ICT role at the school, then rebuilt end to end across 2025-2026. Live and in daily use; source is private.",
     stack: ["Python", "FastAPI", "React", "TypeScript", "PostgreSQL", "Docker", "JWT / RBAC"],
     links: [
       { label: "gloryschools.com", href: "https://gloryschools.com" },
@@ -193,37 +222,46 @@ export const projects: Project[] = [
     ],
   },
   {
-    title: "tailor - evidence-linked resume composition",
+    slug: "tailor",
+    title: "tailor",
     privateWork: true,
+    summary: "A resume composer that refuses to make a claim no evidence supports.",
+    proof: ["Typed, validated edits", "Deterministic PDF export", "Self-hosted"],
     problem:
-      "Resume tools generate plausible text. The failure that actually matters is a claim no evidence supports - and a generator with no notion of evidence can't tell the difference.",
+      "Resume tools generate plausible text. The failure that matters is a claim with nothing behind it, and a generator with no model of evidence cannot tell the difference.",
     approach:
-      "A human-in-the-loop workspace that judges whether a job description is worth pursuing, searches maintained resume, career, GitHub, and portfolio evidence, then proposes typed, validated edits for approval. Every proposed change traces to the evidence record that licenses it, and private sources carry explicit disclosure policy enforced at runtime.",
+      "A human-in-the-loop workspace that judges whether a job description is worth pursuing, searches maintained resume, career, GitHub, and portfolio evidence, then proposes typed edits for approval. Each proposed change traces to the evidence record that licenses it, and private sources carry disclosure policy enforced at runtime.",
     detail:
-      "A YAML-defined Pydantic AI agent behind a stateless FastAPI service, with validated resume snapshots, browser preview, and deterministic PDF export through WeasyPrint. Session state is deliberately disposable - closing the tab discards it. Runs as a container on a self-hosted VPS behind scale-to-zero. Source is private.",
+      "A YAML-defined Pydantic AI agent behind a stateless FastAPI service, with validated resume snapshots, browser preview, and deterministic PDF export through WeasyPrint. Session state is disposable: closing the tab discards it. Runs as a container on a self-hosted VPS behind scale-to-zero. Source is private.",
     stack: ["Python", "FastAPI", "Pydantic AI", "WeasyPrint", "React", "Docker"],
     links: [],
   },
   {
-    title: "workspace-infra - self-hosted deployment platform",
+    slug: "workspace-infra",
+    title: "workspace-infra",
     privateWork: true,
+    summary: "A shared VPS gateway that side projects deploy onto instead of rebuilding.",
+    proof: ["23 files", "Scale-to-zero", "Documented backup/restore"],
     problem:
-      "Running several side projects on managed platforms costs more than the projects are worth, and every new app otherwise reinvents its own deploy, TLS, and backups.",
+      "Managed platforms cost more than a hobby project is worth, and every new app otherwise reinvents TLS, deploys, and backups from nothing.",
     approach:
-      "A shared VPS gateway that applications opt into rather than rebuild: Caddy terminating HTTPS, Sablier stopping idle containers and starting them again on the next request, a Docker socket proxy, shared PostgreSQL, and a documented deployment contract each app implements.",
+      "A shared gateway applications opt into: Caddy terminating HTTPS, Sablier stopping idle containers and starting them again on the next request, a Docker socket proxy, shared PostgreSQL, and a documented deployment contract each app implements.",
     detail:
-      "Deliberately small - 23 files of shell, Makefiles, and Compose, plus documentation for onboarding an app, health contracts, server bootstrap, and backup and restore including offsite copies. Tailor deploys onto it and never touches the shared platform itself. Source is private.",
+      "Small and documented: 23 files of shell, Makefiles, and Compose, plus docs covering how to onboard an app, health contracts, server bootstrap, and backup and restore including offsite copies. Tailor deploys onto it and never touches the shared platform itself. Source is private.",
     stack: ["Docker", "Caddy", "Sablier", "PostgreSQL", "Shell", "Make"],
     links: [],
   },
   {
+    slug: "citation-benchmark",
     title: "LLM citation-hallucination benchmark",
+    summary: "How often six frontier models fabricate a citation, measured across two languages.",
+    proof: ["6 models × 328 prompts", "English + Arabic", "4-category rubric"],
     problem:
-      "Language models fabricate and misattribute citations when answering without tools. Anywhere a citation is checkable, that's a liability rather than a quirk.",
+      "Language models fabricate and misattribute citations when they answer without tools. Anywhere a citation can be checked, that is a liability.",
     approach:
-      "An async LLM-as-judge evaluation pipeline scoring citation accuracy across 328 English and Arabic prompts and 6 frontier models, with a four-category rubric: correct, correct refusal, misattribution, fabrication.",
+      "An async LLM-as-judge pipeline scoring citation accuracy across 328 English and Arabic prompts and 6 frontier models, against a four-category rubric: correct, correct refusal, misattribution, fabrication.",
     detail:
-      "Pluggable provider architecture (OpenAI / Azure / Anthropic / Google), Pydantic schemas, and resumable checkpointing across both the response-collection and judging phases. Modeled on Stanford RegLab's legal_hallucinations. A research pipeline rather than a service: around 30 files, and no test suite of its own.",
+      "Pluggable providers (OpenAI, Azure, Anthropic, Google), Pydantic schemas, and resumable checkpointing across both the collection and judging phases. Modeled on Stanford RegLab’s legal_hallucinations. This is a research pipeline, not a service: about 30 files, with no test suite of its own.",
     stack: ["Python", "asyncio", "Pydantic", "OpenAI / Azure", "pandas"],
     links: [
       {
@@ -233,23 +271,30 @@ export const projects: Project[] = [
     ],
   },
   {
+    slug: "ml-first-principles",
     title: "ML from first principles",
-    problem: "Understand autograd and language models by building them, not importing them.",
+    summary: "micrograd and makemore rebuilt from scratch, maintained as a running notebook.",
+    proof: ["Gradients checked against PyTorch", "32,032-name corpus", "Maintained since Feb 2026"],
+    problem: "Understand autograd and language models by building them instead of importing them.",
     approach:
-      "Reimplemented micrograd's reverse-mode autograd (Value graph, topological backprop, MLP) and the makemore series from scratch, through tokenization and transformer language models.",
+      "Reimplemented micrograd’s reverse-mode autograd (Value graph, topological backprop, MLP), then worked the makemore series through tokenization and transformer language models.",
     detail:
       "Gradients validated against PyTorch; bigram language model trained on 32,032 names. Maintained continuously since February 2026 alongside the MSc financial-econometrics work.",
     stack: ["Python", "PyTorch (validation)", "NumPy"],
     links: [{ label: "GitHub", href: "https://github.com/Bukunmi2108/ml-journey" }],
   },
   {
-    title: "Econometrics: cointegration & ECM/VECM",
+    slug: "econometrics",
+    title: "Cointegration & ECM/VECM",
+    summary:
+      "Do dual-listed Shell shares hold a long-run equilibrium, and how fast does it correct?",
+    proof: ["1,511 trading days", "β ≈ 0.92", "18.5-day half-life"],
     problem:
-      "Do dual-listed Shell shares on the LSE and Euronext hold a long-run equilibrium, and how fast are deviations arbitraged away?",
+      "Dual-listed shares of one company trade on two exchanges. If the law of one price holds, deviations should correct, and the speed of that correction is measurable.",
     approach:
       "Engle-Granger and Johansen cointegration tests over 1,511 trading days, then a VECM to estimate the adjustment dynamics.",
     detail:
-      "Law of one price holds (β ≈ 0.92); deviations correct at ~3.7%/day (γ = −0.037) with an 18.5-day half-life. MScFE 610 coursework.",
+      "The law of one price holds (β ≈ 0.92); deviations correct at about 3.7%/day (γ = −0.037), an 18.5-day half-life. MScFE 610 coursework.",
     stack: ["Python", "statsmodels", "pandas", "NumPy"],
     links: [
       {
@@ -319,7 +364,7 @@ export const experience: Experience[] = [
     start: "2022",
     end: "2024",
     bullets: [
-      "Ran the school's ICT function and taught practical programming.",
+      "Ran the school’s ICT function and taught practical programming.",
       "Built and operated the first digital examination and e-learning platforms, with JWT authentication and role-based access control.",
       "Later rebuilt the platform end to end as a full management system - see Selected work above.",
     ],
@@ -345,8 +390,7 @@ export const education: Education[] = [
     school: "WorldQuant University",
     degree: "MSc Financial Engineering",
     period: "2025–present",
-    detail:
-      "Financial econometrics: cointegration, ECM/VECM, LASSO, Diebold-Mariano testing.",
+    detail: "Financial econometrics: cointegration, ECM/VECM, LASSO, Diebold-Mariano testing.",
   },
   {
     school: "University of the People",

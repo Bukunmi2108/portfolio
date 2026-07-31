@@ -7,12 +7,16 @@ import {
   renderExperienceItem,
   renderOpenToWork,
   renderProjectCard,
+  renderProjectDialog,
   renderSiteLinks,
 } from "./render";
 import type { OpenToWork, Project } from "./content";
 
 const sampleProject: Project = {
+  slug: "sample",
   title: "Sample",
+  summary: "A one-line summary.",
+  proof: ["10 test modules", "Deployed"],
   problem: "A problem.",
   approach: "An approach.",
   detail: "A detail.",
@@ -82,12 +86,14 @@ describe("renderOpenToWork", () => {
 });
 
 describe("renderProjectCard", () => {
-  it("renders title, copy, stack chips, and links", () => {
+  it("renders the skim layer: title, summary, proof chips, stack, and links", () => {
     const card = renderProjectCard(sampleProject);
     expect(card.querySelector(".pc-title")?.textContent).toBe("Sample");
-    expect(card.querySelector(".pc-problem")?.textContent).toBe("A problem.");
-    expect(card.querySelector(".pc-approach")?.textContent).toBe("An approach.");
-    expect(card.querySelector(".pc-detail")?.textContent).toBe("A detail.");
+    expect(card.querySelector(".pc-summary")?.textContent).toBe("A one-line summary.");
+    expect([...card.querySelectorAll(".pc-proof li")].map((li) => li.textContent)).toEqual([
+      "10 test modules",
+      "Deployed",
+    ]);
     expect([...card.querySelectorAll(".pc-stack li")].map((li) => li.textContent)).toEqual([
       "Python",
       "SQLite",
@@ -95,6 +101,14 @@ describe("renderProjectCard", () => {
     const link = card.querySelector<HTMLAnchorElement>(".pc-links a");
     expect(link?.href).toBe("https://example.com/repo");
     expect(link?.rel).toBe("noopener noreferrer");
+  });
+
+  it("keeps the argument off the card", () => {
+    const card = renderProjectCard(sampleProject);
+    for (const cls of [".pc-problem", ".pc-approach", ".pc-detail"]) {
+      expect(card.querySelector(cls)).toBeNull();
+    }
+    expect(card.textContent).not.toContain("An approach.");
   });
 
   it("marks featured projects with a class and badge", () => {
@@ -113,16 +127,68 @@ describe("renderProjectCard", () => {
     expect(badges).toEqual(["Featured", "Private"]);
   });
 
-  it("omits the links container when there are no links", () => {
+  it("always offers a Details fragment link, even with no external links", () => {
     const card = renderProjectCard({ ...sampleProject, links: [] });
-    expect(card.querySelector(".pc-links")).toBeNull();
+    const links = [...card.querySelectorAll<HTMLAnchorElement>(".pc-links a")];
+    expect(links).toHaveLength(1);
+    expect(links[0].getAttribute("href")).toBe("#work/sample");
+    expect(links[0].className).toBe("pc-more");
+  });
+
+  it("renders every project from content with a Details link alongside its own", () => {
+    for (const project of projects) {
+      const card = renderProjectCard(project);
+      expect(card.querySelector(".pc-title")?.textContent).toBe(project.title);
+      expect(card.querySelectorAll(".pc-links a")).toHaveLength(project.links.length + 1);
+      expect(card.querySelector(".pc-more")?.getAttribute("href")).toBe(`#work/${project.slug}`);
+    }
+  });
+});
+
+describe("renderProjectDialog", () => {
+  it("carries the argument, labelled by its own title", () => {
+    const dialog = renderProjectDialog(sampleProject);
+    expect(dialog.tagName).toBe("DIALOG");
+    expect(dialog.id).toBe("pd-sample");
+    expect(dialog.getAttribute("aria-labelledby")).toBe("pd-title-sample");
+    expect(dialog.querySelector("#pd-title-sample")?.textContent).toBe("Sample");
+    expect(dialog.open).toBe(false);
+
+    const sections = [...dialog.querySelectorAll(".pd-section")];
+    expect(sections.map((s) => s.querySelector(".pd-heading")?.textContent)).toEqual([
+      "The problem",
+      "How it works",
+      "Detail",
+    ]);
+    expect(sections.map((s) => s.querySelector("p")?.textContent)).toEqual([
+      "A problem.",
+      "An approach.",
+      "A detail.",
+    ]);
+  });
+
+  it("closes natively through a method=dialog form", () => {
+    const dialog = renderProjectDialog(sampleProject);
+    const form = dialog.querySelector<HTMLFormElement>(".pd-dismiss");
+    expect(form?.getAttribute("method")).toBe("dialog");
+    expect(form?.querySelector(".pd-close")?.getAttribute("aria-label")).toBe("Close Sample");
+  });
+
+  it("puts padding on .pd-body so the dialog element is only ever the backdrop", () => {
+    const dialog = renderProjectDialog(sampleProject);
+    expect(dialog.children).toHaveLength(1);
+    expect(dialog.firstElementChild?.className).toBe("pd-body");
+  });
+
+  it("omits the links row for private work with no public links", () => {
+    expect(renderProjectDialog({ ...sampleProject, links: [] }).querySelector(".pd-links")).toBeNull();
   });
 
   it("renders every project from content without throwing", () => {
     for (const project of projects) {
-      const card = renderProjectCard(project);
-      expect(card.querySelector(".pc-title")?.textContent).toBe(project.title);
-      expect(card.querySelectorAll(".pc-links a")).toHaveLength(project.links.length);
+      const dialog = renderProjectDialog(project);
+      expect(dialog.querySelector(".pd-title")?.textContent).toBe(project.title);
+      expect(dialog.querySelectorAll(".pd-proof li")).toHaveLength(project.proof.length);
     }
   });
 });

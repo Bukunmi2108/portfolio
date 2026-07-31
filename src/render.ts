@@ -4,7 +4,14 @@
  * directly testable under happy-dom and mounted by main.ts.
  */
 
-import type { Education, Experience, OpenToWork, Project, SiteLink } from "./content";
+import type {
+  Education,
+  Experience,
+  OpenToWork,
+  Project,
+  ProjectLink,
+  SiteLink,
+} from "./content";
 
 function el<K extends keyof HTMLElementTagNameMap>(
   tag: K,
@@ -100,6 +107,33 @@ export function renderAbout(paragraphs: readonly string[]): DocumentFragment {
   return frag;
 }
 
+/** Fragment prefix for the per-project detail dialogs: #work/<slug>. */
+export const WORK_HASH_PREFIX = "work/";
+
+function chipList(className: string, label: string, items: readonly string[]): HTMLUListElement {
+  const list = el("ul", className);
+  list.setAttribute("aria-label", label);
+  for (const item of items) list.append(el("li", "", item));
+  return list;
+}
+
+function externalLinks(className: string, links: readonly ProjectLink[]): HTMLElement {
+  const container = el("div", className);
+  for (const link of links) {
+    const a = el("a", "", link.label);
+    a.href = link.href;
+    a.target = "_blank";
+    a.rel = "noopener noreferrer";
+    container.append(a);
+  }
+  return container;
+}
+
+/**
+ * Skim surface: what the project is, the hard facts, the stack. The argument
+ * lives in the dialog, reached through a real fragment link so the browser
+ * supplies history, Cmd-click, and keyboard behaviour for free.
+ */
 export function renderProjectCard(project: Project): HTMLElement {
   const card = el("article", project.featured ? "project-card featured" : "project-card");
 
@@ -109,28 +143,68 @@ export function renderProjectCard(project: Project): HTMLElement {
   if (project.privateWork) head.append(el("span", "pc-badge", "Private"));
   card.append(head);
 
-  card.append(el("p", "pc-problem", project.problem));
-  card.append(el("p", "pc-approach", project.approach));
-  card.append(el("p", "pc-detail", project.detail));
+  card.append(el("p", "pc-summary", project.summary));
+  card.append(chipList("pc-proof", "Key facts", project.proof));
+  card.append(chipList("pc-stack", "Stack", project.stack));
 
-  const stack = el("ul", "pc-stack");
-  stack.setAttribute("aria-label", "Stack");
-  for (const item of project.stack) stack.append(el("li", "", item));
-  card.append(stack);
-
-  if (project.links.length > 0) {
-    const links = el("div", "pc-links");
-    for (const link of project.links) {
-      const a = el("a", "", link.label);
-      a.href = link.href;
-      a.target = "_blank";
-      a.rel = "noopener noreferrer";
-      links.append(a);
-    }
-    card.append(links);
-  }
+  const links = externalLinks("pc-links", project.links);
+  const more = el("a", "pc-more", "Details");
+  more.href = `#${WORK_HASH_PREFIX}${project.slug}`;
+  more.setAttribute("aria-label", `Details: ${project.title}`);
+  links.append(more);
+  card.append(links);
 
   return card;
+}
+
+/**
+ * Detail view. Native <dialog> so focus trapping, Esc, and the backdrop come
+ * from the platform rather than from us. Padding lives on .pd-body, which keeps
+ * `event.target === dialog` an exact test for a backdrop click in main.ts.
+ */
+export function renderProjectDialog(project: Project): HTMLDialogElement {
+  const dialog = el("dialog", "pd");
+  dialog.id = `pd-${project.slug}`;
+  const titleId = `pd-title-${project.slug}`;
+  dialog.setAttribute("aria-labelledby", titleId);
+
+  const body = el("div", "pd-body");
+
+  const head = el("div", "pd-head");
+  const title = el("h2", "pd-title", project.title);
+  title.id = titleId;
+  head.append(title);
+
+  // method="dialog" closes natively, with no script involved.
+  const dismiss = el("form", "pd-dismiss");
+  dismiss.setAttribute("method", "dialog");
+  const close = el("button", "pd-close", "×");
+  close.type = "submit";
+  close.setAttribute("aria-label", `Close ${project.title}`);
+  dismiss.append(close);
+  head.append(dismiss);
+  body.append(head);
+
+  body.append(el("p", "pd-summary", project.summary));
+  body.append(chipList("pd-proof", "Key facts", project.proof));
+
+  const sections: ReadonlyArray<readonly [string, string]> = [
+    ["The problem", project.problem],
+    ["How it works", project.approach],
+    ["Detail", project.detail],
+  ];
+  for (const [heading, text] of sections) {
+    const section = el("section", "pd-section");
+    section.append(el("h3", "pd-heading", heading));
+    section.append(el("p", "", text));
+    body.append(section);
+  }
+
+  body.append(chipList("pd-stack", "Stack", project.stack));
+  if (project.links.length > 0) body.append(externalLinks("pd-links", project.links));
+
+  dialog.append(body);
+  return dialog;
 }
 
 export function renderExperienceItem(entry: Experience): HTMLLIElement {
