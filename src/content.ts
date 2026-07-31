@@ -81,11 +81,13 @@ export const contactLinks: SiteLink[] = [
   { label: "LinkedIn", href: site.social.linkedin },
 ];
 
-/** Method → demonstrated range → human line. No titles, no labels. */
+/**
+ * Voice, not evidence. The cards below carry the facts, so this stays short
+ * and says the one thing they can't: how the work gets made.
+ */
 export const about: string[] = [
-  "I build systems that hold up under load and tell you when they don’t - event-driven backends, tool-using agents, and models trained from scratch. Seven shipped in the last six months, most deployed, all tested.",
-  "The same loop runs through all of it: model the system, measure it honestly, ship it, leave the internals visible. Tideo names its failure modes in its test suite. Capit shows you where it looked and which beam candidates it rejected. The production agents came with their evaluation frameworks attached.",
-  "Twenty months of that has been paid AI engineering in legal technology, a domain where every citation is checkable and a hallucination is a liability. That constraint is the transferable part: it applies anywhere correctness is auditable, which covers most of fintech, healthcare, and compliance. The First Class law degree sits behind the domain depth, not in front of the engineering.",
+  "Everything here runs the same loop: model the system, measure it honestly, ship it, leave the internals visible. Seven systems in the last six months, most deployed, all tested.",
+  "The tests name the failure modes instead of hiding them, and the demos show what the model actually did rather than just what it concluded. Nearly two years of it has been the day job, mostly in legal tech, where a wrong citation is a liability rather than a bug.",
   "When not modeling: reading, pencil art, piano.",
 ];
 
