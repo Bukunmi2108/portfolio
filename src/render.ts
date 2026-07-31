@@ -1,6 +1,6 @@
 /**
  * Pure DOM builders. Each function returns a detached element/fragment built
- * from content data — no document queries, no side effects — so they are
+ * from content data - no document queries, no side effects - so they are
  * directly testable under happy-dom and mounted by main.ts.
  */
 
@@ -143,7 +143,7 @@ export function renderExperienceItem(entry: Experience): HTMLLIElement {
     el("p", "xp-company", entry.location ? `${entry.company} · ${entry.location}` : entry.company),
   );
   head.append(title);
-  head.append(el("p", "xp-dates", `${entry.start} — ${entry.end}`));
+  head.append(el("p", "xp-dates", `${entry.start} – ${entry.end}`));
   item.append(head);
 
   const bullets = el("ul", "xp-bullets");

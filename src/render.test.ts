@@ -133,7 +133,7 @@ describe("renderExperienceItem", () => {
     const item = renderExperienceItem(entry);
     expect(item.querySelector(".xp-role")?.textContent).toBe(entry.role);
     expect(item.querySelector(".xp-company")?.textContent).toContain(entry.company);
-    expect(item.querySelector(".xp-dates")?.textContent).toBe(`${entry.start} — ${entry.end}`);
+    expect(item.querySelector(".xp-dates")?.textContent).toBe(`${entry.start} – ${entry.end}`);
     expect(item.querySelectorAll(".xp-bullets li")).toHaveLength(entry.bullets.length);
     expect(item.querySelector(".xp-stack")?.textContent).toBe(entry.stack);
   });
