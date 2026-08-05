@@ -8,6 +8,7 @@ import {
   heroLinks,
   openToWork,
   projects,
+  writing,
 } from "./content";
 import {
   WORK_HASH_PREFIX,
@@ -19,6 +20,7 @@ import {
   renderProjectCard,
   renderProjectDialog,
   renderSiteLinks,
+  renderWritingItem,
 } from "./render";
 
 function mount(id: string, content: Node | Node[]): void {
@@ -76,6 +78,7 @@ window.addEventListener("hashchange", () => {
 });
 
 syncDialogs();
+mount("writing-list", writing.map(renderWritingItem));
 mount("experience-list", experience.map(renderExperienceItem));
 mount("education-list", education.map(renderEducationItem));
 mount("cert-list", renderCertList(certifications));

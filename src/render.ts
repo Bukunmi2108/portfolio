@@ -11,6 +11,7 @@ import type {
   Project,
   ProjectLink,
   SiteLink,
+  Writing,
 } from "./content";
 
 function el<K extends keyof HTMLElementTagNameMap>(
@@ -205,6 +206,54 @@ export function renderProjectDialog(project: Project): HTMLDialogElement {
 
   dialog.append(body);
   return dialog;
+}
+
+/**
+ * Stored dates are ISO; the display form is pinned to UTC so a reader west of
+ * Greenwich doesn't see the day before the one that was published.
+ */
+function formatDate(iso: string): string {
+  return new Date(iso).toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+    timeZone: "UTC",
+  });
+}
+
+/**
+ * The piece lives where it was written, so this is a pointer, not a preview:
+ * its own subtitle, its findings as short lines, and two ways out to the text.
+ */
+export function renderWritingItem(entry: Writing): HTMLLIElement {
+  const item = el("li", "wr-item");
+
+  const head = el("div", "wr-head");
+  const title = el("h3", "wr-title");
+  const titleLink = el("a", undefined, entry.title);
+  titleLink.href = entry.link.href;
+  titleLink.target = "_blank";
+  titleLink.rel = "noopener noreferrer";
+  title.append(titleLink);
+  head.append(title);
+
+  const meta = el("p", "wr-meta");
+  const time = el("time", undefined, formatDate(entry.date));
+  time.dateTime = entry.date;
+  meta.append(time, ` · ${entry.about}`);
+  head.append(meta);
+  item.append(head);
+
+  item.append(el("p", "wr-standfirst", entry.standfirst));
+
+  const points = el("ul", "wr-points");
+  points.setAttribute("aria-label", "What it covers");
+  for (const takeaway of entry.takeaways) points.append(el("li", "", takeaway));
+  item.append(points);
+
+  item.append(externalLinks("wr-links", [entry.link]));
+
+  return item;
 }
 
 export function renderExperienceItem(entry: Experience): HTMLLIElement {

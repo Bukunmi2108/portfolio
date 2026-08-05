@@ -457,7 +457,8 @@ button {
   font-size: 0.7rem;
 }
 
-.pc-links {
+.pc-links,
+.wr-links {
   display: flex;
   flex-wrap: wrap;
   gap: 0.4rem 1.1rem;
@@ -465,7 +466,8 @@ button {
   padding-top: 0.5rem;
 }
 
-.pc-links a {
+.pc-links a,
+.wr-links a {
   color: var(--accent);
   font-family: var(--font-mono);
   font-size: 0.76rem;
@@ -474,11 +476,13 @@ button {
   text-decoration: none;
 }
 
-.pc-links a::before {
+.pc-links a::before,
+.wr-links a::before {
   content: "→ ";
 }
 
-.pc-links a:hover {
+.pc-links a:hover,
+.wr-links a:hover {
   color: var(--accent-strong);
   text-decoration: underline;
   text-underline-offset: 3px;
@@ -658,6 +662,100 @@ body:has(.pd[open]) {
   from {
     opacity: 0;
   }
+}
+
+/* ---------- writing ---------- */
+
+/* One wide entry per piece rather than a card grid: a list of two would read as
+ * a broken layout, and long-form deserves a measure you can actually read. */
+.wr-list {
+  display: grid;
+  gap: 1.1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.wr-item {
+  max-width: 52rem;
+  border: 1px solid var(--ink);
+  /* The accent edge is the writing section's tell, standing in for the star
+   * badge that marks a featured project. */
+  border-left: 3px solid var(--accent);
+  border-radius: var(--radius);
+  padding: 1.3rem 1.4rem 1.15rem;
+  background: var(--card);
+  box-shadow: 4px 4px 0 var(--shadow);
+  animation: rise 460ms var(--ease) backwards;
+  transition:
+    transform 180ms var(--ease),
+    box-shadow 180ms var(--ease);
+}
+
+.wr-item:hover {
+  box-shadow:
+    7px 7px 0 var(--accent-soft),
+    7px 7px 0 1px var(--accent);
+  transform: translate(-2px, -2px);
+}
+
+.wr-head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem 1rem;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 0.45rem;
+}
+
+.wr-title {
+  min-width: 0;
+  font-size: 1.35rem;
+  overflow-wrap: break-word;
+}
+
+.wr-title a {
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.wr-title a:hover {
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.wr-meta {
+  flex-shrink: 0;
+  margin: 0;
+  color: var(--ink-faint);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+}
+
+.wr-standfirst {
+  margin: 0 0 0.8rem;
+  color: var(--ink-muted);
+  font-family: var(--font-display);
+  font-size: 1.02rem;
+  font-style: italic;
+  line-height: 1.4;
+}
+
+.wr-points {
+  display: grid;
+  gap: 0.35rem;
+  margin: 0 0 0.2rem;
+  padding-left: 1.1rem;
+  color: var(--ink-muted);
+  font-size: 0.9rem;
+}
+
+.wr-points li::marker {
+  color: var(--accent);
 }
 
 /* ---------- experience ---------- */

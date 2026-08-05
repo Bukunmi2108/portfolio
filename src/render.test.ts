@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { about, certifications, education, experience, projects } from "./content";
+import { about, certifications, education, experience, projects, writing } from "./content";
 import {
   renderAbout,
   renderCertList,
@@ -9,8 +9,9 @@ import {
   renderProjectCard,
   renderProjectDialog,
   renderSiteLinks,
+  renderWritingItem,
 } from "./render";
-import type { OpenToWork, Project } from "./content";
+import type { OpenToWork, Project, Writing } from "./content";
 
 const sampleProject: Project = {
   slug: "sample",
@@ -189,6 +190,57 @@ describe("renderProjectDialog", () => {
       const dialog = renderProjectDialog(project);
       expect(dialog.querySelector(".pd-title")?.textContent).toBe(project.title);
       expect(dialog.querySelectorAll(".pd-proof li")).toHaveLength(project.proof.length);
+    }
+  });
+});
+
+const sampleWriting: Writing = {
+  title: "A piece",
+  standfirst: "The line under the title",
+  date: "2026-08-04",
+  about: "sample",
+  takeaways: ["First finding.", "Second finding."],
+  link: { label: "Read on GitHub", href: "https://example.com/piece.md" },
+};
+
+describe("renderWritingItem", () => {
+  it("renders the pointer layer: title link, meta, standfirst, takeaways", () => {
+    const item = renderWritingItem(sampleWriting);
+    const titleLink = item.querySelector<HTMLAnchorElement>(".wr-title a");
+    expect(titleLink?.textContent).toBe("A piece");
+    expect(titleLink?.href).toBe("https://example.com/piece.md");
+    expect(titleLink?.rel).toBe("noopener noreferrer");
+    expect(item.querySelector(".wr-standfirst")?.textContent).toBe("The line under the title");
+    expect([...item.querySelectorAll(".wr-points li")].map((li) => li.textContent)).toEqual([
+      "First finding.",
+      "Second finding.",
+    ]);
+    const out = item.querySelector<HTMLAnchorElement>(".wr-links a");
+    expect(out?.textContent).toBe("Read on GitHub");
+    expect(out?.href).toBe("https://example.com/piece.md");
+  });
+
+  // The piece is the prose layer; a paragraph about it here would make the
+  // skimmer read voice before deciding, which the project cards never do.
+  it("keeps prose off the listing", () => {
+    const item = renderWritingItem(sampleWriting);
+    expect(item.querySelectorAll("p")).toHaveLength(2);
+    expect(item.querySelector(".wr-summary")).toBeNull();
+  });
+
+  it("keeps the machine-readable date and shows it in UTC", () => {
+    const item = renderWritingItem(sampleWriting);
+    expect(item.querySelector("time")?.getAttribute("datetime")).toBe("2026-08-04");
+    // Not the 3rd: an ISO date parses as UTC midnight, which is the previous
+    // day for any reader west of Greenwich unless the display is pinned too.
+    expect(item.querySelector(".wr-meta")?.textContent).toBe("4 Aug 2026 · sample");
+  });
+
+  it("renders every piece from content", () => {
+    for (const piece of writing) {
+      const item = renderWritingItem(piece);
+      expect(item.querySelector(".wr-title a")?.textContent).toBe(piece.title);
+      expect(item.querySelectorAll(".wr-points li")).toHaveLength(piece.takeaways.length);
     }
   });
 });

@@ -15,6 +15,7 @@ import {
   heroLinks,
   openToWork,
   projects,
+  writing,
 } from "./content";
 import { renderOpenToWork } from "./render";
 
@@ -35,6 +36,7 @@ it("main.ts mounts all content into the real index.html", async () => {
   expect(dialogs).toHaveLength(projects.length);
   expect(dialogs.map((d) => d.id)).toEqual(projects.map((p) => `pd-${p.slug}`));
   expect(dialogs.some((d) => d.open)).toBe(false);
+  expect(document.querySelectorAll("#writing-list .wr-item")).toHaveLength(writing.length);
   expect(document.querySelectorAll("#experience-list .xp-item")).toHaveLength(experience.length);
   expect(document.querySelectorAll("#education-list .edu-item")).toHaveLength(education.length);
   expect(document.querySelectorAll("#cert-list li")).toHaveLength(certifications.length);

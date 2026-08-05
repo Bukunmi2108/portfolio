@@ -1,7 +1,7 @@
 /**
- * Source of truth for the dynamic site content (about, projects, experience,
- * education, certifications, link lists). Static shell copy - hero headline,
- * tagline, contact blurb, meta tags - lives in index.html.
+ * Source of truth for the dynamic site content (about, projects, writing,
+ * experience, education, certifications, link lists). Static shell copy - hero
+ * headline, tagline, contact blurb, meta tags - lives in index.html.
  *
  * Copy convention: no em dashes in prose; use spaced hyphens ( - ). Date
  * ranges use en dashes, matching the resume.
@@ -124,7 +124,7 @@ export const projects: Project[] = [
     approach:
       "Two brokers with separate jobs. Kafka carries facts: append-only, partitioned by job_id, replayable by independent consumer groups. RabbitMQ carries commands: acked, deleted, competing consumers. A single dispatcher bridges them and guards duplicates with an idempotent SET NX. Redis holds hot state and streams progress over pub/sub; PostgreSQL keeps terminal state and the event audit log.",
     detail:
-      "The separation is load-bearing. Stop RabbitMQ and the API still accepts jobs; replay the audit log and nothing re-transcodes. The test suite names its failure modes directly: dead-letter queues, deduplication, backpressure, retry-after, rate limiting, event envelopes, plus a classified FFmpeg-stderr corpus and chaos drills. Output is a single HLS package with poster frames, a scrubbable storyboard, and optional faster-whisper captions. The live backend sits on an ephemeral HF Space, so shared output links expire.",
+      "The separation is load-bearing. Stop RabbitMQ and the API still accepts jobs; replay the audit log and nothing re-transcodes. The test suite names its failure modes directly: dead-letter queues, deduplication, backpressure, retry-after, rate limiting, event envelopes, plus a classified FFmpeg-stderr corpus and chaos drills. Output is a single HLS package with poster frames, a scrubbable storyboard, and optional faster-whisper captions. It runs on a shared VPS under Docker Compose, deployed at a pinned commit behind health checks that ask whether the workers and dispatcher are actually alive, and reversible to the previous commit when they are not.",
     stack: [
       "Python",
       "FastAPI",
@@ -138,7 +138,7 @@ export const projects: Project[] = [
     ],
     links: [
       { label: "Live demo", href: "https://tideo.vercel.app" },
-      { label: "API & docs", href: "https://bukunmi2108-tideo.hf.space/docs" },
+      { label: "API & docs", href: "https://tideo-api.duckdns.org/docs" },
       { label: "GitHub", href: "https://github.com/Bukunmi2108/tideo" },
     ],
   },
@@ -304,6 +304,46 @@ export const projects: Project[] = [
         href: "https://github.com/Bukunmi2108/ml-journey/tree/main/notebooks/MSCFE0",
       },
     ],
+  },
+];
+
+/**
+ * Long-form writing. The projects' two-layer rule applies here too, and the
+ * piece itself is the second layer - so this stays a pointer, not a precis.
+ * The standfirst is the piece's own subtitle; the takeaways are its findings,
+ * set as short lines because nobody reads a paragraph to decide whether to
+ * read an essay.
+ */
+export type Writing = {
+  title: string;
+  /** The line under the title in the piece itself. */
+  standfirst: string;
+  /** ISO date (YYYY-MM-DD); rendered in UTC so it reads the same everywhere. */
+  date: string;
+  /** What the piece documents, named as the project is named above. */
+  about: string;
+  /** The reason to click. Findings, not topics, and kept to one line each. */
+  takeaways: string[];
+  link: ProjectLink;
+};
+
+export const writing: Writing[] = [
+  {
+    title: "FFmpeg was the easy part",
+    standfirst:
+      "What I learned building a distributed video pipeline and the four failures that redrew it",
+    date: "2026-08-04",
+    about: "tideo",
+    takeaways: [
+      "Cancelling a Celery task does not stop the FFmpeg process it started.",
+      "A dispatch claim is not a queue acknowledgement. The duplicate guard lost a job.",
+      "Fail-open, fail-closed, skip-the-bad-record: three components, three policies.",
+      "More workers did not make it faster. Four on four cores lost to two.",
+    ],
+    link: {
+      label: "Read on GitHub",
+      href: "https://github.com/Bukunmi2108/tideo/blob/main/docs/case_study.md",
+    },
   },
 ];
 
